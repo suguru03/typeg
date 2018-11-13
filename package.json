@@ -1,0 +1,23 @@
+{
+  "name": "lazy-type",
+  "version": "0.0.0",
+  "main": "index.js",
+  "author": "Suguru Motegi <suguru.motegi@gmail.com>",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "precommit": "lint-staged"
+  },
+  "lint-staged": {
+    "*.{js,ts}": [
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "devDependencies": {
+    "husky": "^1.1.4",
+    "lint-staged": "^8.0.4",
+    "prettier": "^1.15.2",
+    "typescript": "^3.1.6"
+  }
+}
