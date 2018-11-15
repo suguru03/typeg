@@ -7,7 +7,6 @@ const decoratorMap = require("./lib");
 addHook(parse);
 
 function parse(ast) {
-  // console.log(require('util').inspect(ast, false, null));
   resolveAst(ast, "body");
   return ast;
 }
