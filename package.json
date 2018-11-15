@@ -19,5 +19,8 @@
     "lint-staged": "^8.0.4",
     "prettier": "^1.15.2",
     "typescript": "^3.1.6"
+  },
+  "dependencies": {
+    "dcp": "^0.1.4"
   }
 }
