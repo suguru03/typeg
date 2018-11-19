@@ -4,4 +4,7 @@ declare class Test<R> {
 
   @Times(4)
   basicWithResult<T>(arg: T): T;
+
+  @Times(4)
+  basicWithResult<T>(arg: T): R | T | null;
 }
