@@ -7,4 +7,7 @@ declare class Test<R> {
 
   @Times(4)
   basicWithResult<T>(arg: T): R | T | null;
+
+  @Times(4)
+  basicWithResult<T>(arg: T): Promise<T | null>;
 }
