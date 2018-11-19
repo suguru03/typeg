@@ -21,7 +21,10 @@ function resolveAst(parent, key) {
     return;
   }
   if (Array.isArray(tree)) {
-    return tree.forEach((_, i) => resolveAst(tree, i));
+    for (let i = 0; i < tree.length; i++) {
+      resolveAst(tree, i);
+    }
+    return;
   }
   switch (tree.type) {
     case "Program":
