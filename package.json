@@ -23,5 +23,9 @@
   "dependencies": {
     "dcp": "^0.1.4",
     "prettier-hook": "^0.1.1"
+  },
+  "prettier": {
+    "singleQuote": true,
+    "trailingComma": "all"
   }
 }
