@@ -23,7 +23,8 @@
   },
   "dependencies": {
     "dcp": "^0.1.4",
-    "prettier-hook": "^0.1.1"
+    "minimist": "^1.2.0",
+    "prettier-hook": "^0.1.2"
   },
   "prettier": {
     "singleQuote": true,

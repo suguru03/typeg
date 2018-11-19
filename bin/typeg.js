@@ -1,8 +1,21 @@
 #!/usr/bin/env node
 'use strict';
 
-const { execSync } = require('child_process');
+const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
+
+const minimist = require('minimist');
+
+const args = minimist(process.argv.slice(2));
+const debug = args.debug;
+const out = args.out; // output
+
+const argv = process.argv.slice(2);
+if (out) {
+  const index = argv.indexOf(out) - 1;
+  argv.splice(index, 2);
+}
 
 const indexpath = path.resolve(__dirname, '../index.js');
 const hookpath = path.resolve(
@@ -10,8 +23,12 @@ const hookpath = path.resolve(
   '../node_modules/prettier-hook/bin/prettier-hook.js',
 );
 
-const command = `${hookpath} --require ${indexpath} ${process.argv
-  .slice(2)
-  .join(' ')}`;
-const res = execSync(command);
-console.log(res.toString());
+const command = `${hookpath} --require ${indexpath} ` + argv.join(' ');
+let res = execSync(command).toString();
+
+if (debug || !out) {
+  console.log(res);
+}
+if (out) {
+  fs.writeFileSync(out, res);
+}
