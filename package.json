@@ -21,6 +21,7 @@
     "typescript": "^3.1.6"
   },
   "dependencies": {
-    "dcp": "^0.1.4"
+    "dcp": "^0.1.4",
+    "prettier-hook": "^0.1.1"
   }
 }
