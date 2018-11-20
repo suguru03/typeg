@@ -4,7 +4,6 @@
   "main": "index.js",
   "author": "Suguru Motegi <suguru.motegi@gmail.com>",
   "license": "MIT",
-  "private": true,
   "bin": "./bin/typeg.js",
   "scripts": {
     "precommit": "lint-staged"
