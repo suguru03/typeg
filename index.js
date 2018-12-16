@@ -31,6 +31,7 @@ function resolveAst(parent, key) {
       return resolveAst(tree, 'body');
     case 'ImportDeclaration':
       return;
+    case 'ExportDefaultDeclaration':
     case 'ExportNamedDeclaration':
       return resolveAst(tree, 'declaration');
     // class
@@ -86,7 +87,7 @@ function resolveAst(parent, key) {
     case 'ForOfStatement':
       return resolveAll(tree, ['left', 'right', 'body']);
     case 'Identifier':
-      return checkTarget(targetMap[tree.name], parent);
+      return;
     // variables
     case 'VariableDeclaration':
       return resolveAst(tree, 'declarations');
@@ -95,14 +96,16 @@ function resolveAst(parent, key) {
     case 'AwaitExpression':
       return;
     // TS
+    case 'TSModuleBlock':
+    case 'TSModuleDeclaration':
     case 'TSAbstractClassDeclaration':
       return resolveAst(tree, 'body');
     case 'TSTypeAnnotation':
       return resolveAst(tree, 'typeAnnotation');
     case 'TSAsExpression':
       return resolveAst(tree, 'expression');
+    case 'TSNamespaceExportDeclaration':
     case 'TSTypeQuery':
-      return;
     case 'TSAnyKeyword':
     case 'TSStringKeyword':
     case 'TSNumberKeyword':
