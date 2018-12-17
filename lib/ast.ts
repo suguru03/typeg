@@ -16,13 +16,13 @@ export class Ast {
   resolveAst(parent: any, key: any) {
     const tree = parent[key];
     if (!tree) {
-      return tree;
+      return;
     }
     if (Array.isArray(tree)) {
       for (let i = 0; i < tree.length; i++) {
         this.resolveAst(tree, i);
       }
-      return tree;
+      return;
     }
     const { type } = tree;
     if (this.resolverMap[type]) {
@@ -89,7 +89,7 @@ export class Ast {
       case 'ForOfStatement':
         return this.resolveAll(tree, ['left', 'right', 'body']);
       case 'Identifier':
-        return tree;
+        return this.resolveAst(tree, 'typeAnnotation');
       // variables
       case 'VariableDeclaration':
         return this.resolveAst(tree, 'declarations');
@@ -113,11 +113,11 @@ export class Ast {
       case 'TSNumberKeyword':
       case 'TSTypeReference':
       case 'TSUnionType':
-        return tree;
+        return;
       case 'TSTypeParameterInstantiation':
         return this.resolveAst(tree, 'params');
     }
-    return tree;
+    return;
   }
 
   private resolveAll(parent, keys = []) {

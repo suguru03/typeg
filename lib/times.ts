@@ -7,7 +7,6 @@ import { Ast } from './';
 export default resolveTimes;
 
 let cloneIndex = 0;
-const argPath = ['typeAnnotation', 'typeAnnotation', 'typeName', 'name'];
 
 function resolveTimes(parent: any[], index: number, args: any[] = []): void {
   const [length, target = 'T'] = args.map(arg => arg.value);
@@ -76,6 +75,10 @@ class Node {
   private resolveArgs(): this {
     const { node, target, size } = this;
     const { params = [] } = node.value;
+    // console.log(require('util').inspect(params, false, null));
+    times(params.length, index => this.resolveUnionTypes(params, index));
+    // console.log(require('util').inspect(params, false, null));
+    const argPath = ['typeAnnotation', 'typeAnnotation', 'typeName', 'name'];
     const targetArgIndex = params.findIndex(p => get(p, argPath) === target);
     const targetArg = params[targetArgIndex];
     if (!targetArg) {
@@ -92,11 +95,14 @@ class Node {
   }
 
   private resolveReturnType(): this {
-    const { node, target, size } = this;
-    const { returnType } = node.value;
-    if (!returnType) {
+    return this.resolveUnionTypes(this.node.value.returnType, 'typeAnnotation');
+  }
+
+  private resolveUnionTypes(node: any, key: any): this {
+    if (!node) {
       return this;
     }
+    const { target, size } = this;
     const types = times(size, n => ({
       type: 'TSTypeReference',
       typeName: {
@@ -104,13 +110,13 @@ class Node {
         name: `${target}${++n}`,
       },
     }));
-    node.returnType = new Ast()
-      .set('TSTypeReference', (parent: any, key: any, ast: Ast) => {
-        const tree = parent[key];
-        tree.typeParameters = ast.resolveAst(tree, 'typeParameters');
-        tree.typeName = ast.resolveAst(tree, 'typeName');
+    new Ast()
+      .set('TSTypeReference', (parent, parentKey, ast) => {
+        const tree = parent[parentKey];
+        ast.resolveAst(tree, 'typeParameters');
+        ast.resolveAst(tree, 'typeName');
         if (tree.typeName.name !== target) {
-          return tree;
+          return;
         }
         parent[key] = {
           type: 'TSTypeAnnotation',
@@ -119,17 +125,15 @@ class Node {
             types,
           },
         };
-        return tree;
       })
-      .set('TSUnionType', (parent: any, key: any) => {
-        const tree = parent[key];
+      .set('TSUnionType', (parent, parentKey) => {
+        const tree = parent[parentKey];
         const index = tree.types.findIndex(t => t.typeName && t.typeName.name === target);
         if (index >= 0) {
           tree.types.splice(index, 1, ...types);
         }
-        return tree;
       })
-      .resolveAst(returnType, 'typeAnnotation');
+      .resolveAst(node, key);
     return this;
   }
 
