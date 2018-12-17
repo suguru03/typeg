@@ -1,28 +1,32 @@
-type AstResolver = (node: any, key: any) => void;
+type AstResolver = (node: any, key: any, ast?: Ast) => any;
+
+interface ResolverMap {
+  [targetType: string]: AstResolver;
+}
 
 export class Ast {
-  readonly targetType: string;
-  readonly resolver: AstResolver;
-  constructor(targetType: string, resolver: AstResolver) {
-    this.targetType = targetType;
-    this.resolver = resolver;
+  private readonly resolverMap: ResolverMap = {};
+  private readonly resolver: AstResolver;
+
+  set(type: string, resolver: AstResolver) {
+    this.resolverMap[type] = resolver;
+    return this;
   }
 
   resolveAst(parent: any, key: any) {
     const tree = parent[key];
     if (!tree) {
-      return;
+      return tree;
     }
     if (Array.isArray(tree)) {
       for (let i = 0; i < tree.length; i++) {
         this.resolveAst(tree, i);
       }
-      return;
+      return tree;
     }
     const { type } = tree;
-    console.log('ｷﾀ ━━━ヽ(´ω`)ﾉ ━━━!!', type, this.targetType);
-    if (type === this.targetType) {
-      return this.resolver(parent, key);
+    if (this.resolverMap[type]) {
+      return this.resolverMap[type](parent, key, this);
     }
     switch (type) {
       case 'Program':
@@ -85,7 +89,7 @@ export class Ast {
       case 'ForOfStatement':
         return this.resolveAll(tree, ['left', 'right', 'body']);
       case 'Identifier':
-        return;
+        return tree;
       // variables
       case 'VariableDeclaration':
         return this.resolveAst(tree, 'declarations');
@@ -107,8 +111,13 @@ export class Ast {
       case 'TSAnyKeyword':
       case 'TSStringKeyword':
       case 'TSNumberKeyword':
-        return;
+      case 'TSTypeReference':
+      case 'TSUnionType':
+        return tree;
+      case 'TSTypeParameterInstantiation':
+        return this.resolveAst(tree, 'params');
     }
+    return tree;
   }
 
   private resolveAll(parent, keys = []) {

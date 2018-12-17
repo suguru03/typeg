@@ -5,7 +5,7 @@ import { Ast, decoratorMap } from './lib';
 addHook(parse);
 
 function parse(ast) {
-  new Ast('MethodDefinition', resolveDecorators).resolveAst(ast, 'body');
+  new Ast().set('MethodDefinition', resolveDecorators).resolveAst(ast, 'body');
   return ast;
 }
 

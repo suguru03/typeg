@@ -2,6 +2,7 @@ import * as dcp from 'dcp';
 import * as ts from 'typescript';
 
 import { times, get, set } from './util';
+import { Ast } from './';
 
 export default resolveTimes;
 
@@ -42,7 +43,9 @@ class Node {
   }
 
   resolve(): this {
-    return this.resolveTypeParams().resolveArgs();
+    return this.resolveTypeParams()
+      .resolveArgs()
+      .resolveReturnType();
   }
 
   private resolveTypeParams(): this {
@@ -101,41 +104,33 @@ class Node {
         name: `${target}${++n}`,
       },
     }));
-    returnType.typeAnnotation = resolve(returnType.typeAnnotation);
-    return this;
-
-    function resolve(tree) {
-      if (!tree) {
-        return;
-      }
-      switch (tree.type) {
-        case 'TSTypeReference':
-          tree.typeParameters = resolve(tree.typeParameters);
-          tree.typeName = resolve(tree.typeName);
-          if (tree.typeName.name !== target) {
-            return tree;
-          }
-          return {
-            type: 'TSTypeAnnotation',
-            typeAnnotation: {
-              type: 'TSUnionType',
-              types,
-            },
-          };
-        case 'TSUnionType':
-          const index = tree.types.findIndex(t => t.typeName && t.typeName.name === target);
-          if (index < 0) {
-            return tree;
-          }
+    node.returnType = new Ast()
+      .set('TSTypeReference', (parent: any, key: any, ast: Ast) => {
+        const tree = parent[key];
+        tree.typeParameters = ast.resolveAst(tree, 'typeParameters');
+        tree.typeName = ast.resolveAst(tree, 'typeName');
+        if (tree.typeName.name !== target) {
+          return tree;
+        }
+        parent[key] = {
+          type: 'TSTypeAnnotation',
+          typeAnnotation: {
+            type: 'TSUnionType',
+            types,
+          },
+        };
+        return tree;
+      })
+      .set('TSUnionType', (parent: any, key: any) => {
+        const tree = parent[key];
+        const index = tree.types.findIndex(t => t.typeName && t.typeName.name === target);
+        if (index >= 0) {
           tree.types.splice(index, 1, ...types);
-          return tree;
-        case 'TSTypeParameterInstantiation':
-          tree.params = tree.params.map(resolve);
-          return tree;
-        default:
-          return tree;
-      }
-    }
+        }
+        return tree;
+      })
+      .resolveAst(returnType, 'typeAnnotation');
+    return this;
   }
 
   private getKey(key: string) {
