@@ -1,3 +1,4 @@
+export * from './ast';
 import Times from './times';
 
-export { Times };
+export const decoratorMap = { Times };
