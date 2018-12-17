@@ -8,6 +8,6 @@ declare class Test<R> {
   @Times(4)
   basicWithMultiResult<T>(arg: T): R | T | null;
 
-  @Times(4)
+  @Times(4, 'T', { arg: 'multi' })
   basicWithPromiseMultiResult<T>(arg: T): Promise<T | null>;
 }
