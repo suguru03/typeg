@@ -111,9 +111,12 @@ export class Ast {
       case 'TSAnyKeyword':
       case 'TSStringKeyword':
       case 'TSNumberKeyword':
-      case 'TSTypeReference':
       case 'TSUnionType':
-        return;
+        return this.resolveAst(tree, 'types');
+      case 'TSTypeReference':
+        return this.resolveAst(tree, 'typeName');
+      case 'TSFunctionType':
+        return this.resolveAll(tree, ['typeParameters', 'parameters', 'typeAnnotation']);
       case 'TSTypeParameterInstantiation':
         return this.resolveAst(tree, 'params');
     }

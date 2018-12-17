@@ -42,9 +42,8 @@ class Node {
   }
 
   resolve(): this {
-    return this.resolveTypeParams()
-      .resolveArgs()
-      .resolveReturnType();
+    return this.resolveTypeParams().resolveArgs();
+    // .resolveReturnType();
   }
 
   private resolveTypeParams(): this {
@@ -75,9 +74,7 @@ class Node {
   private resolveArgs(): this {
     const { node, target, size } = this;
     const { params = [] } = node.value;
-    // console.log(require('util').inspect(params, false, null));
     times(params.length, index => this.resolveUnionTypes(params, index));
-    // console.log(require('util').inspect(params, false, null));
     const argPath = ['typeAnnotation', 'typeAnnotation', 'typeName', 'name'];
     const targetArgIndex = params.findIndex(p => get(p, argPath) === target);
     const targetArg = params[targetArgIndex];
@@ -118,7 +115,7 @@ class Node {
         if (tree.typeName.name !== target) {
           return;
         }
-        parent[key] = {
+        parent[parentKey] = {
           type: 'TSTypeAnnotation',
           typeAnnotation: {
             type: 'TSUnionType',
@@ -126,8 +123,9 @@ class Node {
           },
         };
       })
-      .set('TSUnionType', (parent, parentKey) => {
+      .set('TSUnionType', (parent, parentKey, ast) => {
         const tree = parent[parentKey];
+        ast.resolveAst(tree, 'types');
         const index = tree.types.findIndex(t => t.typeName && t.typeName.name === target);
         if (index >= 0) {
           tree.types.splice(index, 1, ...types);
