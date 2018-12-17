@@ -52,7 +52,7 @@ export class Ast {
       case 'Property':
         return this.resolveAst(tree, 'value');
       case 'FunctionExpression':
-        return this.resolveAst(tree, 'body');
+        return this.resolveAll(tree, ['body', 'returnType']);
       case 'ArrowFunctionExpression':
         return this.resolveAst(tree, 'body');
       case 'ReturnStatement':
@@ -111,6 +111,7 @@ export class Ast {
       case 'TSAnyKeyword':
       case 'TSStringKeyword':
       case 'TSNumberKeyword':
+        return;
       case 'TSUnionType':
         return this.resolveAst(tree, 'types');
       case 'TSTypeReference':
@@ -119,6 +120,8 @@ export class Ast {
         return this.resolveAll(tree, ['typeParameters', 'parameters', 'typeAnnotation']);
       case 'TSTypeParameterInstantiation':
         return this.resolveAst(tree, 'params');
+      case 'TSTupleType':
+        return this.resolveAst(tree, 'elementTypes');
     }
     return;
   }

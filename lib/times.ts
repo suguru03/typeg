@@ -12,7 +12,10 @@ enum ArgumentType {
 }
 
 interface Opts {
-  [key: string]: ArgumentType;
+  args?: {
+    [key: string]: ArgumentType;
+  };
+  returnType?: ArgumentType;
 }
 
 let cloneIndex = 0;
@@ -32,22 +35,29 @@ function resolveTimes(parent: any[], index: number, args: any[] = []): void {
 
 function getArguments(args: any[] = []) {
   return args.map((arg, i) => {
-    let result: any;
+    let origin: any;
+    let current: any;
     new Ast()
       .set('Literal', (node, key) => {
         const { value } = node[key];
-        if (result) {
-          result[node.key.name] = value;
+        if (origin) {
+          current[node.key.name] = value;
         } else {
-          result = value;
+          origin = value;
         }
       })
       .set('ObjectExpression', (node, key, ast) => {
-        result = {};
+        const cur = current;
+        if (origin) {
+          current = origin[node.key.name] = {};
+        } else {
+          current = origin = {};
+        }
         ast.resolveAst(node[key], 'properties');
+        current = cur;
       })
       .resolveAst(args, i);
-    return result;
+    return origin;
   });
 }
 
@@ -75,8 +85,9 @@ class Node {
   }
 
   resolve(): this {
-    return this.resolveTypeParams().resolveArgs();
-    // .resolveReturnType();
+    return this.resolveTypeParams()
+      .resolveArgs()
+      .resolveReturnType();
   }
 
   private resolveTypeParams(): this {
@@ -108,7 +119,7 @@ class Node {
     const { node, opts } = this;
     const { params = [] } = node.value;
     for (const [index, param] of params.entries()) {
-      if (opts[param.name] === ArgumentType.Multi) {
+      if (get(opts, ['args', param.name]) === ArgumentType.Multi) {
         this.resolveMultiArgs(params, index);
       } else {
         this.resolveUnionTypes(params, index);
@@ -118,7 +129,7 @@ class Node {
   }
 
   private resolveMultiArgs(params: any[], index: number): this {
-    const { node, target, size } = this;
+    const { target, size } = this;
     const param = params[index];
     const argKey = this.getKey(`arg:${param.name}`);
     const newArgs = times(size, n => {
@@ -136,12 +147,25 @@ class Node {
         .resolveAst(arg, 'typeAnnotation');
       return arg;
     });
-    node.value.params.splice(index, 1, ...newArgs);
+    params.splice(index, 1, ...newArgs);
     return this;
   }
 
   private resolveReturnType(): this {
-    return this.resolveUnionTypes(this.node.value.returnType, 'typeAnnotation');
+    const { node, opts } = this;
+    const { returnType } = node.value;
+    if (opts.returnType !== ArgumentType.Multi) {
+      return this.resolveUnionTypes(returnType, 'typeAnnotation');
+    }
+    new Ast()
+      .set('TSTypeParameterInstantiation', (parent, key) => {
+        const { params = [] } = parent[key];
+        for (const [index, param] of params.entries()) {
+          this.resolveMultiArgs(params, index);
+        }
+      })
+      .resolveAst(returnType, 'typeAnnotation');
+    return this;
   }
 
   private resolveUnionTypes(node: any, key: any): this {
