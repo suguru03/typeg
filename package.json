@@ -15,6 +15,7 @@
     ]
   },
   "devDependencies": {
+    "@types/node": "^10.12.15",
     "husky": "^1.1.4",
     "lint-staged": "^8.0.4",
     "prettier": "^1.15.2",
