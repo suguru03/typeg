@@ -8,8 +8,7 @@ const { execSync } = require('child_process');
 const minimist = require('minimist');
 
 const args = minimist(process.argv.slice(2));
-const debug = args.debug;
-const out = args.out; // output
+const { debug, out } = args;
 
 const argv = process.argv.slice(2);
 if (out) {
@@ -17,11 +16,8 @@ if (out) {
   argv.splice(index, 2);
 }
 
-const indexpath = path.resolve(__dirname, '../index.js');
-const hookpath = path.resolve(
-  __dirname,
-  '../node_modules/prettier-hook/bin/prettier-hook.js',
-);
+const indexpath = path.resolve(__dirname, '../dist/index.js');
+const hookpath = path.resolve(__dirname, '../node_modules/prettier-hook/bin/prettier-hook.js');
 
 const command = `${hookpath} --require ${indexpath} ` + argv.join(' ');
 let res = execSync(command).toString();

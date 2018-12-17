@@ -1,10 +1,10 @@
 'use strict';
 
-const dcp = require('dcp');
+import * as dcp from 'dcp';
 
-const { times, get, set } = require('./util');
+import { times, get, set } from './util';
 
-module.exports = resolveTimes;
+export default resolveTimes;
 
 class TimesError extends Error {
   constructor(msg) {
@@ -15,7 +15,7 @@ class TimesError extends Error {
 let count = 0;
 const argPath = ['typeAnnotation', 'typeAnnotation', 'typeName', 'name'];
 
-function resolveTimes(parent, index, args = []) {
+function resolveTimes(parent: any[], index: number, args: any[] = []): void {
   const [length, target = 'T'] = args.map(arg => arg.value);
   if (!Number.isSafeInteger(length)) {
     throw new TimesError('Invalid the first argument');
@@ -52,12 +52,12 @@ function resolveTimes(parent, index, args = []) {
 
     // create arguments
     if (targetArg) {
-      const args = times(t + 1, n => {
+      const targets = times(t + 1, n => {
         const arg = dcp.clone(argKey, targetArg);
         arg.name = `${arg.name}${++n}`;
         return set(arg, argPath, `${target}${n}`);
       });
-      node.value.params.splice(targetArgIndex, 1, ...args);
+      node.value.params.splice(targetArgIndex, 1, ...targets);
     }
 
     node.value.returnType = getReturnType(returnType, t + 1, target);
@@ -97,13 +97,11 @@ function getReturnType(returnType, length, target) {
           type: 'TSTypeAnnotation',
           typeAnnotation: {
             type: 'TSUnionType',
-            types: types,
+            types,
           },
         };
       case 'TSUnionType':
-        const index = tree.types.findIndex(
-          t => t.typeName && t.typeName.name === target,
-        );
+        const index = tree.types.findIndex(t => t.typeName && t.typeName.name === target);
         if (index < 0) {
           return tree;
         }

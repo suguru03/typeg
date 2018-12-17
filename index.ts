@@ -1,8 +1,6 @@
-'use strict';
+import { addHook } from 'prettier-hook/hooks/parser-typescript';
 
-const { addHook } = require('prettier-hook/hooks/parser-typescript');
-
-const decoratorMap = require('./lib');
+import * as decoratorMap from './lib';
 
 addHook(parse);
 
@@ -120,6 +118,8 @@ function resolveDecorators(parent, key) {
   }
   for (const { expression } of tree.decorators) {
     const func = decoratorMap[expression.callee.name];
-    func && func(parent, key, expression.arguments);
+    if (func) {
+      func(parent, key, expression.arguments);
+    }
   }
 }

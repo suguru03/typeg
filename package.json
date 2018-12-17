@@ -18,6 +18,8 @@
     "husky": "^1.1.4",
     "lint-staged": "^8.0.4",
     "prettier": "^1.15.2",
+    "ts-node": "^7.0.1",
+    "tslint": "^5.11.0",
     "typescript": "^3.1.6"
   },
   "dependencies": {
@@ -26,6 +28,7 @@
     "prettier-hook": "^0.1.2"
   },
   "prettier": {
+    "printWidth": 100,
     "singleQuote": true,
     "trailingComma": "all"
   }
