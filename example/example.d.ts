@@ -9,5 +9,5 @@ declare class Test<R> {
   // basicWithMultiResult<T>(arg: T): R | T | null;
 
   @Times(2, 'T', { args: { arg: 'multi' }, returnType: 'multi' })
-  basicWithPromiseMultiResult<T>(arg: T): Promise<[T | null]>;
+  basicWithPromiseMultiResult<T>(arg: T): Promise<T | null>;
 }

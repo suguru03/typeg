@@ -9,6 +9,7 @@ export default resolveTimes;
 enum ArgumentType {
   Single = 'sigle',
   Multi = 'multi',
+  ArrayMulti = 'arrayMulti',
 }
 
 interface Opts {
@@ -154,17 +155,22 @@ class Node {
   private resolveReturnType(): this {
     const { node, opts } = this;
     const { returnType } = node.value;
-    if (opts.returnType !== ArgumentType.Multi) {
-      return this.resolveUnionTypes(returnType, 'typeAnnotation');
+    switch (opts.returnType) {
+      case ArgumentType.Multi:
+        break;
+      case ArgumentType.ArrayMulti:
+        break;
+      default:
+        return this.resolveUnionTypes(returnType, 'typeAnnotation');
     }
-    new Ast()
-      .set('TSTypeParameterInstantiation', (parent, key) => {
-        const { params = [] } = parent[key];
-        for (const [index, param] of params.entries()) {
-          this.resolveMultiArgs(params, index);
-        }
-      })
-      .resolveAst(returnType, 'typeAnnotation');
+    // new Ast()
+    //   .set('TSTypeParameterInstantiation', (parent, key) => {
+    //     const { params = [] } = parent[key];
+    //     for (const [index, param] of params.entries()) {
+    //       this.resolveMultiArgs(params, index);
+    //     }
+    //   })
+    //   .resolveAst(returnType, 'typeAnnotation');
     return this;
   }
 
