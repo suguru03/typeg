@@ -130,66 +130,31 @@ class Node {
       const param = params[index];
       switch (get(opts, ['args', param.name])) {
         case ArgumentType.Multi:
-          this.resolveMultiArgs(params, index);
+          this.resolveTargetForMulti(params, index);
           break;
         case ArgumentType.ArrayMulti:
-          this.resolveM(param);
+          this.resolveArrayMulti(param);
           break;
         default:
-          this.resolveUnionTypes(params, index);
+          this.resolveTargetForSingle(params, index);
           break;
       }
     }
     return this;
   }
 
-  private resolveMultiArgs(params: any[], index: number): this {
-    const { target, size } = this;
-    const param = params[index];
-    const argKey = this.getKey(`arg:${param.name}`);
-    const newArgs = times(size, n => {
-      const arg = dcp.clone(argKey, param);
-      arg.name += ++n;
-      new Ast()
-        .set('TSTypeReference', (parent, parentKey, ast) => {
-          const tree = parent[parentKey];
-          ast.resolveAst(tree, 'typeParameters');
-          ast.resolveAst(tree, 'typeName');
-          if (get(tree, ['typeName', 'name']) === target) {
-            tree.typeName.name += n;
-          }
-        })
-        .resolveAst(arg, 'typeAnnotation');
-      return arg;
-    });
-    params.splice(index, 1, ...newArgs);
-    return this;
+  private resolveReturnType(): this {
+    const { node, target, opts } = this;
+    const { returnType } = node.value;
+    switch (opts.returnType) {
+      case ReturnType.ArrayMulti:
+        return this.resolveArrayMulti(returnType);
+      default:
+        return this.resolveTargetForSingle(returnType, 'typeAnnotation');
+    }
   }
 
-  private resolveArrayMultiArgs(params: any[], index: number): this {
-    const { target, size } = this;
-    const param = params[index];
-    const cloneKey = this.getKey(`ArrayMulti:${param.range}`);
-    const newArgs = times(size, n => {
-      n++;
-      const arg = dcp.clone(cloneKey, param);
-      new Ast()
-        .set('TSTypeReference', (parent, parentKey, ast) => {
-          const tree = parentKey === undefined ? parent : parent[parentKey];
-          ast.resolveAst(tree, 'typeParameters');
-          ast.resolveAst(tree, 'typeName');
-          if (get(tree, ['typeName', 'name']) === target) {
-            tree.typeName.name += n;
-          }
-        })
-        .resolveAst(arg);
-      return arg;
-    });
-    params.splice(index, 1, ...newArgs);
-    return this;
-  }
-
-  private resolveM(node: any): this {
+  private resolveArrayMulti(node: any): this {
     const { target } = this;
     new Ast()
       .set('TSTupleType', (parent, key, ast) => {
@@ -199,7 +164,7 @@ class Node {
         let index = types.length;
         while (--index >= 0) {
           if (this.hasTarget(types[index])) {
-            this.resolveArrayMultiArgs(types, index);
+            this.resolveTargetForArrayMulti(types, index);
           } else {
             ast.resolveAst(types, index);
           }
@@ -223,18 +188,7 @@ class Node {
       .resolveAst(node);
   }
 
-  private resolveReturnType(): this {
-    const { node, target, opts } = this;
-    const { returnType } = node.value;
-    switch (opts.returnType) {
-      case ReturnType.ArrayMulti:
-        return this.resolveM(returnType);
-      default:
-        return this.resolveUnionTypes(returnType, 'typeAnnotation');
-    }
-  }
-
-  private resolveUnionTypes(node: any, key: any): this {
+  private resolveTargetForSingle(node: any, key: any): this {
     if (!node) {
       return this;
     }
@@ -271,6 +225,52 @@ class Node {
         }
       })
       .resolveAst(node, key);
+    return this;
+  }
+
+  private resolveTargetForMulti(params: any[], index: number): this {
+    const { target, size } = this;
+    const param = params[index];
+    const argKey = this.getKey(`multi:${param.name}`);
+    const newArgs = times(size, n => {
+      const arg = dcp.clone(argKey, param);
+      arg.name += ++n;
+      new Ast()
+        .set('TSTypeReference', (parent, parentKey, ast) => {
+          const tree = parent[parentKey];
+          ast.resolveAst(tree, 'typeParameters');
+          ast.resolveAst(tree, 'typeName');
+          if (get(tree, ['typeName', 'name']) === target) {
+            tree.typeName.name += n;
+          }
+        })
+        .resolveAst(arg);
+      return arg;
+    });
+    params.splice(index, 1, ...newArgs);
+    return this;
+  }
+
+  private resolveTargetForArrayMulti(params: any[], index: number): this {
+    const { target, size } = this;
+    const param = params[index];
+    const cloneKey = this.getKey(`ArrayMulti:${param.range}`);
+    const newArgs = times(size, n => {
+      n++;
+      const arg = dcp.clone(cloneKey, param);
+      new Ast()
+        .set('TSTypeReference', (parent, parentKey, ast) => {
+          const tree = parentKey === undefined ? parent : parent[parentKey];
+          ast.resolveAst(tree, 'typeParameters');
+          ast.resolveAst(tree, 'typeName');
+          if (get(tree, ['typeName', 'name']) === target) {
+            tree.typeName.name += n;
+          }
+        })
+        .resolveAst(arg);
+      return arg;
+    });
+    params.splice(index, 1, ...newArgs);
     return this;
   }
 
