@@ -8,7 +8,7 @@ function times<T>(n: number, iterator: (index: number) => T): T[] {
   return arr;
 }
 
-function get<T>(obj: object, paths: string[], def?: T): T {
+function get<T>(obj: object, paths: Array<string | number>, def?: T): T {
   let i = -1;
   const size = paths.length;
   let target: T | object = obj;
@@ -18,7 +18,7 @@ function get<T>(obj: object, paths: string[], def?: T): T {
   return obj === undefined ? def : (target as T);
 }
 
-function set<T extends object>(obj: T, paths: string[], value: any): T {
+function set<T extends object>(obj: T, paths: Array<string | number>, value: any): T {
   let i = -1;
   const size = paths.length;
   let target: T | object = obj;

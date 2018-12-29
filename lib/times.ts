@@ -124,11 +124,20 @@ class Node {
   private resolveArgs(): this {
     const { node, opts } = this;
     const { params = [] } = node.value;
-    for (const [index, param] of params.entries()) {
-      if (get(opts, ['args', param.name]) === ArgumentType.Multi) {
-        this.resolveMultiArgs(params, index);
-      } else {
-        this.resolveUnionTypes(params, index);
+    // need to search from right because of splice
+    let index = params.length;
+    while (--index >= 0) {
+      const param = params[index];
+      switch (get(opts, ['args', param.name])) {
+        case ArgumentType.Multi:
+          this.resolveMultiArgs(params, index);
+          break;
+        case ArgumentType.ArrayMulti:
+          this.resolveM(param);
+          break;
+        default:
+          this.resolveUnionTypes(params, index);
+          break;
       }
     }
     return this;
@@ -160,8 +169,9 @@ class Node {
   private resolveArrayMultiArgs(params: any[], index: number): this {
     const { target, size } = this;
     const param = params[index];
-    const cloneKey = this.getKey(`ArrayMulti:${index}`);
+    const cloneKey = this.getKey(`ArrayMulti:${param.range}`);
     const newArgs = times(size, n => {
+      n++;
       const arg = dcp.clone(cloneKey, param);
       new Ast()
         .set('TSTypeReference', (parent, parentKey, ast) => {
@@ -169,7 +179,7 @@ class Node {
           ast.resolveAst(tree, 'typeParameters');
           ast.resolveAst(tree, 'typeName');
           if (get(tree, ['typeName', 'name']) === target) {
-            tree.typeName.name += ++n;
+            tree.typeName.name += n;
           }
         })
         .resolveAst(arg);
@@ -179,31 +189,49 @@ class Node {
     return this;
   }
 
+  private resolveM(node: any): this {
+    const { target } = this;
+    new Ast()
+      .set('TSTupleType', (parent, key, ast) => {
+        const tree = parent[key];
+        const types = tree.elementTypes || [];
+        // need to search from right because of splice
+        let index = types.length;
+        while (--index >= 0) {
+          if (this.hasTarget(types[index])) {
+            this.resolveArrayMultiArgs(types, index);
+          } else {
+            ast.resolveAst(types, index);
+          }
+        }
+      })
+      .resolveAst(node);
+    return this;
+  }
+
+  private hasTarget(node: any) {
+    const { target } = this;
+    return new Ast()
+      .set('TSTypeReference', (parent, parentKey, ast) => {
+        const tree = parentKey === undefined ? parent : parent[parentKey];
+        return (
+          get(tree, ['typeName', 'name']) === target ||
+          ast.resolveAst(tree, 'typeParameters') ||
+          ast.resolveAst(tree, 'typeName')
+        );
+      })
+      .resolveAst(node);
+  }
+
   private resolveReturnType(): this {
     const { node, target, opts } = this;
     const { returnType } = node.value;
     switch (opts.returnType) {
       case ReturnType.ArrayMulti:
-        new Ast()
-          .set('TSTupleType', (parent, key, ast) => {
-            const tree = parent[key];
-            const types = tree.elementTypes || [];
-            // need to search from right because of splice
-            let index = types.length;
-            while (--index >= 0) {
-              if (get(types, [index, 'typeName', 'name']) === target) {
-                this.resolveArrayMultiArgs(types, index);
-              } else {
-                ast.resolveAst(types, index);
-              }
-            }
-          })
-          .resolveAst(returnType, 'typeAnnotation');
-        break;
+        return this.resolveM(returnType);
       default:
         return this.resolveUnionTypes(returnType, 'typeAnnotation');
     }
-    return this;
   }
 
   private resolveUnionTypes(node: any, key: any): this {

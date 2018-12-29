@@ -13,16 +13,17 @@ export class Ast {
     return this;
   }
 
-  resolveAst(parent: any, key?: any) {
+  resolveAst(parent: any, key?: any): boolean {
     const tree = key === undefined ? parent : parent[key];
     if (!tree) {
-      return;
+      return false;
     }
     if (Array.isArray(tree)) {
+      let resolved = false;
       for (let i = 0; i < tree.length; i++) {
-        this.resolveAst(tree, i);
+        resolved = this.resolveAst(tree, i) || resolved;
       }
-      return;
+      return resolved;
     }
     const { type } = tree;
     const resolver = this.resolverMap[type];
@@ -33,7 +34,7 @@ export class Ast {
       case 'Program':
         return this.resolveAst(tree, 'body');
       case 'ImportDeclaration':
-        return;
+        return false;
       case 'ExportDefaultDeclaration':
       case 'ExportNamedDeclaration':
         return this.resolveAst(tree, 'declaration');
@@ -45,7 +46,7 @@ export class Ast {
       case 'ClassDeclaration':
         return this.resolveAst(tree, 'body');
       case 'MethodDefinition':
-        return;
+        return false;
       case 'TemplateLiteral':
         return this.resolveAst(tree, 'expressions');
       case 'ObjectExpression':
@@ -84,7 +85,7 @@ export class Ast {
         return this.resolveAst(tree, 'body');
       case 'Super':
       case 'ThisExpression':
-        return;
+        return false;
       case 'ForStatement':
         return this.resolveAll(tree, ['init', 'test', 'update', 'body']);
       case 'ForOfStatement':
@@ -97,7 +98,7 @@ export class Ast {
       case 'VariableDeclarator':
         return this.resolveAst(tree, 'init');
       case 'AwaitExpression':
-        return;
+        return false;
       // TS
       case 'TSModuleBlock':
       case 'TSModuleDeclaration':
@@ -112,7 +113,7 @@ export class Ast {
       case 'TSAnyKeyword':
       case 'TSStringKeyword':
       case 'TSNumberKeyword':
-        return;
+        return false;
       case 'TSUnionType':
         return this.resolveAst(tree, 'types');
       case 'TSTypeReference':
@@ -124,10 +125,14 @@ export class Ast {
       case 'TSTupleType':
         return this.resolveAst(tree, 'elementTypes');
     }
-    return;
+    return false;
   }
 
-  private resolveAll(parent, keys = []) {
-    keys.forEach(key => this.resolveAst(parent, key));
+  private resolveAll(parent, keys = []): boolean {
+    let resolved = false;
+    for (const key of keys) {
+      resolved = this.resolveAst(parent, key) || resolved;
+    }
+    return resolved;
   }
 }
