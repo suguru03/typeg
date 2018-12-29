@@ -1,66 +1,39 @@
 # Typeg
 
-Typeg generates type definitions for TypeScript using annotations.
+Typeg generates type definitions for TypeScript using decorators using prettier.
 
-Currently, it only supports `Times` which generates generic types `n` times.
+`@Times` creates similar type definitions such as [`Promise.all`](https://github.com/Microsoft/TypeScript/blob/v3.2.2/lib/lib.es2015.promise.d.ts#L41) easily.
 
-## Example
+Currently, It will only work where you can define TypeScript decorators.
+
+## Usage
 
 ```ts
-// example.d.ts
-declare class Test<R> {
-  // func1
-  @Times(3)
-  func1<T>(arg: T): R;
-
-  // func2
-  @Times(3)
-  func2<T>(arg: T): T;
-
-  // func3
-  @Times(4)
-  func3<T>(arg: T): Promise<R | T | null>;
-
+class Promise {
+  @Times(10)
+  all<T>(values: [T | PromiseLike<T>]): Promise<[T]>;
 }
 ```
 
-
 ```ts
-yarn typeg example.d.ts --out _example.d.ts
+yarn typeg promise.d.ts --out _promise.d.ts
 ```
 
 ```ts
-declare class Test<R> {
-  // func1
-  func1<T1>(arg1: T1): R;
-
-  func1<T1, T2>(arg1: T1, arg2: T2): R;
-
-  func1<T1, T2, T3>(arg1: T1, arg2: T2, arg3: T3): R;
-
-  // func2
-  func2<T1>(arg1: T1): T1;
-
-  func2<T1, T2>(arg1: T1, arg2: T2): T1 | T2;
-
-  func2<T1, T2, T3>(arg1: T1, arg2: T2, arg3: T3): T1 | T2 | T3;
-
-  // func3
-  func3<T1>(arg1: T1): Promise<R | T1 | null>;
-
-  func3<T1, T2>(arg1: T1, arg2: T2): Promise<R | T1 | T2 | null>;
-
-  func3<T1, T2, T3>(
-    arg1: T1,
-    arg2: T2,
-    arg3: T3,
-  ): Promise<R | T1 | T2 | T3 | null>;
-
-  func3<T1, T2, T3, T4>(
-    arg1: T1,
-    arg2: T2,
-    arg3: T3,
-    arg4: T4,
-  ): Promise<R | T1 | T2 | T3 | T4 | null>;
+class Promise {
+  all<T1>(values: [T1 | PromiseLike<T1>]): Promise<[T1]>;
+  all<T1, T2>(values: [T1 | PromiseLike<T1>, T2 | PromiseLike<T2>]): Promise<[T1, T2]>;
+  all<T1, T2, T3>(
+    values: [T1 | PromiseLike<T1>, T2 | PromiseLike<T2>, T3 | PromiseLike<T3>],
+  ): Promise<[T1, T2, T3]>;
+  all<T1, T2, T3, T4>(
+    values: [
+      T1 | PromiseLike<T1>,
+      T2 | PromiseLike<T2>,
+      T3 | PromiseLike<T3>,
+      T4 | PromiseLike<T4>
+    ],
+  ): Promise<[T1, T2, T3, T4]>;
+  ...
 }
 ```
