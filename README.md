@@ -6,11 +6,9 @@ Typeg generates type definitions for TypeScript using decorators using prettier.
 
 Currently, It will only work where you can define TypeScript decorators.
 
-## Usage
-
 ```ts
 class Promise {
-  @Times(10)
+  @Times(10, 'T', { args: { values: 'arrayMulti' }, returnType: 'arrayMulti' })
   all<T>(values: [T | PromiseLike<T>]): Promise<[T]>;
 }
 ```
@@ -36,4 +34,20 @@ class Promise {
   ): Promise<[T1, T2, T3, T4]>;
   ...
 }
+```
+
+Other examples are [here](https://github.com/suguru03/typeg/tree/master/example)!.
+
+## Usage
+
+```
+npm install -D prettier typeg
+// or
+yarn add -D prettier typeg
+```
+
+```
+npx typeg <filepath> --out <dirpath>
+// or
+yarn typeg <filepath> --out <dirpath>
 ```
