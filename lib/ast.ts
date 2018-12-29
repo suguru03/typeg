@@ -13,8 +13,8 @@ export class Ast {
     return this;
   }
 
-  resolveAst(parent: any, key: any) {
-    const tree = parent[key];
+  resolveAst(parent: any, key?: any) {
+    const tree = key === undefined ? parent : parent[key];
     if (!tree) {
       return;
     }
@@ -25,8 +25,9 @@ export class Ast {
       return;
     }
     const { type } = tree;
-    if (this.resolverMap[type]) {
-      return this.resolverMap[type](parent, key, this);
+    const resolver = this.resolverMap[type];
+    if (resolver) {
+      return resolver(parent, key, this);
     }
     switch (type) {
       case 'Program':
@@ -115,7 +116,7 @@ export class Ast {
       case 'TSUnionType':
         return this.resolveAst(tree, 'types');
       case 'TSTypeReference':
-        return this.resolveAst(tree, 'typeName');
+        return this.resolveAll(tree, ['typeName', 'typeParameters']);
       case 'TSFunctionType':
         return this.resolveAll(tree, ['typeParameters', 'parameters', 'typeAnnotation']);
       case 'TSTypeParameterInstantiation':

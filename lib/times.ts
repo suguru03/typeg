@@ -12,11 +12,16 @@ enum ArgumentType {
   ArrayMulti = 'arrayMulti',
 }
 
+enum ReturnType {
+  Single = 'sigle',
+  ArrayMulti = 'arrayMulti',
+}
+
 interface Opts {
   args?: {
     [key: string]: ArgumentType;
   };
-  returnType?: ArgumentType;
+  returnType?: ReturnType;
 }
 
 let cloneIndex = 0;
@@ -141,7 +146,7 @@ class Node {
           const tree = parent[parentKey];
           ast.resolveAst(tree, 'typeParameters');
           ast.resolveAst(tree, 'typeName');
-          if (tree.typeName.name === target) {
+          if (get(tree, ['typeName', 'name']) === target) {
             tree.typeName.name += n;
           }
         })
@@ -152,25 +157,52 @@ class Node {
     return this;
   }
 
+  private resolveArrayMultiArgs(params: any[], index: number): this {
+    const { target, size } = this;
+    const param = params[index];
+    const cloneKey = this.getKey(`ArrayMulti:${index}`);
+    const newArgs = times(size, n => {
+      const arg = dcp.clone(cloneKey, param);
+      new Ast()
+        .set('TSTypeReference', (parent, parentKey, ast) => {
+          const tree = parentKey === undefined ? parent : parent[parentKey];
+          ast.resolveAst(tree, 'typeParameters');
+          ast.resolveAst(tree, 'typeName');
+          if (get(tree, ['typeName', 'name']) === target) {
+            tree.typeName.name += ++n;
+          }
+        })
+        .resolveAst(arg);
+      return arg;
+    });
+    params.splice(index, 1, ...newArgs);
+    return this;
+  }
+
   private resolveReturnType(): this {
-    const { node, opts } = this;
+    const { node, target, opts } = this;
     const { returnType } = node.value;
     switch (opts.returnType) {
-      case ArgumentType.Multi:
-        break;
-      case ArgumentType.ArrayMulti:
+      case ReturnType.ArrayMulti:
+        new Ast()
+          .set('TSTupleType', (parent, key, ast) => {
+            const tree = parent[key];
+            const types = tree.elementTypes || [];
+            // need to search from right because of splice
+            let index = types.length;
+            while (--index >= 0) {
+              if (get(types, [index, 'typeName', 'name']) === target) {
+                this.resolveArrayMultiArgs(types, index);
+              } else {
+                ast.resolveAst(types, index);
+              }
+            }
+          })
+          .resolveAst(returnType, 'typeAnnotation');
         break;
       default:
         return this.resolveUnionTypes(returnType, 'typeAnnotation');
     }
-    // new Ast()
-    //   .set('TSTypeParameterInstantiation', (parent, key) => {
-    //     const { params = [] } = parent[key];
-    //     for (const [index, param] of params.entries()) {
-    //       this.resolveMultiArgs(params, index);
-    //     }
-    //   })
-    //   .resolveAst(returnType, 'typeAnnotation');
     return this;
   }
 
