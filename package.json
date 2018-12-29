@@ -14,6 +14,11 @@
       "git add"
     ]
   },
+   "files": [
+    "README.md",
+    "bin",
+    "dist"
+  ],
   "devDependencies": {
     "@types/node": "^10.12.15",
     "husky": "^1.1.4",
