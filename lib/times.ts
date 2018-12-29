@@ -174,11 +174,11 @@ class Node {
     return this;
   }
 
-  private hasTarget(node: any) {
+  private hasTarget(node: any): boolean {
     const { target } = this;
     return new Ast()
       .set('TSTypeReference', (parent, parentKey, ast) => {
-        const tree = parentKey === undefined ? parent : parent[parentKey];
+        const tree = parent[parentKey];
         return (
           get(tree, ['typeName', 'name']) === target ||
           ast.resolveAst(tree, 'typeParameters') ||
@@ -260,7 +260,7 @@ class Node {
       const arg = dcp.clone(cloneKey, param);
       new Ast()
         .set('TSTypeReference', (parent, parentKey, ast) => {
-          const tree = parentKey === undefined ? parent : parent[parentKey];
+          const tree = parent[parentKey];
           ast.resolveAst(tree, 'typeParameters');
           ast.resolveAst(tree, 'typeName');
           if (get(tree, ['typeName', 'name']) === target) {

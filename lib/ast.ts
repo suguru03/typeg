@@ -4,6 +4,8 @@ interface ResolverMap {
   [targetType: string]: AstResolver;
 }
 
+const rootKey = Symbol('root');
+
 export class Ast {
   private readonly resolverMap: ResolverMap = {};
   private readonly resolver: AstResolver;
@@ -13,8 +15,9 @@ export class Ast {
     return this;
   }
 
-  resolveAst(parent: any, key?: any): boolean {
-    const tree = key === undefined ? parent : parent[key];
+  resolveAst(parent: any, key: any = rootKey): boolean {
+    parent = key === rootKey ? { [key]: parent } : parent;
+    const tree = parent[key];
     if (!tree) {
       return false;
     }
