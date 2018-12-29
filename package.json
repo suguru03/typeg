@@ -26,7 +26,10 @@
   "dependencies": {
     "dcp": "^0.1.4",
     "minimist": "^1.2.0",
-    "prettier-hook": "^0.1.2"
+    "prettier-hook": "^0.2.0"
+  },
+  "peerDependencies": {
+    "prettier": ">= 1.13.7"
   },
   "prettier": {
     "printWidth": 100,
