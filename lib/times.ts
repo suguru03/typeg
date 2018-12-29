@@ -156,7 +156,7 @@ class Node {
 
   private resolveArrayMulti(node: any): this {
     const { target } = this;
-    new Ast()
+    const checked = new Ast()
       .set('TSTupleType', (parent, key, ast) => {
         const tree = parent[key];
         const types = tree.elementTypes || [];
@@ -169,8 +169,12 @@ class Node {
             ast.resolveAst(types, index);
           }
         }
+        return true;
       })
       .resolveAst(node);
+    if (!checked) {
+      throw new TimesError('Invalid arrayMulti option');
+    }
     return this;
   }
 

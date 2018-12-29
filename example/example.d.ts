@@ -12,5 +12,5 @@ declare class Test<R> {
   basicWithPromiseMultiResult<T>(arg: T): Promise<T | null>;
 
   @Times(2, 'T', { args: { arg: 'multi' }, returnType: 'arrayMulti' })
-  basicWithPromiseMultiResult<T>(arg: T): Promise<T | null>;
+  basicWithPromiseMultiResult<T>(arg: T): Promise<[T | null]>;
 }
