@@ -17,10 +17,14 @@ if (out) {
 }
 
 const indexpath = path.resolve(__dirname, '../dist/index.js');
-const hookpath = path.resolve(__dirname, '../node_modules/prettier-hook/bin/prettier-hook.js');
+const hookpath = path.resolve(
+  __dirname,
+  debug ? '../node_modules' : '../..',
+  './prettier-hook/bin/prettier-hook.js',
+);
 
 const command = `${hookpath} --require ${indexpath} ` + argv.join(' ');
-let res = execSync(command).toString();
+const res = execSync(command).toString();
 
 if (debug || !out) {
   console.log(res);
