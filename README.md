@@ -36,7 +36,7 @@ class Promise {
 }
 ```
 
-Other examples are [here](https://github.com/suguru03/typeg/tree/master/example)!
+Other examples are [here](https://github.com/suguru03/typeg/tree/master/examples)!
 
 ## Usage
 
@@ -51,3 +51,7 @@ npx typeg <filepath> --out <dirpath>
 // or
 yarn typeg <filepath> --out <dirpath>
 ```
+
+## Use case
+
+- [Aigle](https://github.com/suguru03/aigle/blob/master/typings/aigle-base.d.ts)
