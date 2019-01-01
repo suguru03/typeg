@@ -8,7 +8,6 @@ const { execSync } = require('child_process');
 const minimist = require('minimist');
 
 const args = minimist(process.argv.slice(2));
-const options = ['_', 'debug', 'out'];
 const { debug, out } = args;
 
 const argv = process.argv.slice(2);
@@ -23,13 +22,7 @@ const hookpath = path.resolve(
   './prettier-hook/bin/prettier-hook.js',
 );
 
-for (const key of options) {
-  delete args[key];
-}
-const str = Object.entries(args)
-  .map(([key, str]) => `--${key} ${str}`)
-  .join(' ');
-const command = `${hookpath} --require ${indexpath} ${str}`;
+const command = `${hookpath} --require ${indexpath} ${args._}`;
 const res = execSync(command).toString();
 
 if (debug || !out) {
