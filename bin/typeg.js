@@ -10,11 +10,6 @@ const minimist = require('minimist');
 const args = minimist(process.argv.slice(2));
 const { debug, out } = args;
 
-const argv = process.argv.slice(2);
-if (out) {
-  argv.splice(index, 2);
-}
-
 const indexpath = path.resolve(__dirname, '../dist/index.js');
 const hookpath = path.resolve(
   __dirname,
