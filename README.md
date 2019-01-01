@@ -1,6 +1,6 @@
 # Typeg
 
-Typeg generates type definitions for TypeScript using decorators using prettier.
+Typeg generates type definitions for TypeScript using decorators using [Prettier](https://github.com/prettier/prettier).
 
 `@Times` creates similar type definitions such as [`Promise.all`](https://github.com/Microsoft/TypeScript/blob/v3.2.2/lib/lib.es2015.promise.d.ts#L41) easily.
 
@@ -36,7 +36,7 @@ class Promise {
 }
 ```
 
-Other examples are [here](https://github.com/suguru03/typeg/tree/master/example)!.
+Other examples are [here](https://github.com/suguru03/typeg/tree/master/example)!
 
 ## Usage
 
