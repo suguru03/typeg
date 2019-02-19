@@ -11,11 +11,5 @@
     "ordered-imports": false,
     "quotemark": false,
     "semicolon": [true, "always", "ignore-bound-class-methods"]
-  },
-  "linterOptions": {
-      "exclude": [
-          "node_modeules",
-          "console_ui"
-      ]
   }
 }
