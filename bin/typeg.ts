@@ -9,11 +9,10 @@ const args = minimist(process.argv.slice(2));
 const { debug, out } = args;
 
 const indexpath = path.resolve(__dirname, '../index.js');
-const hookpath = [
-  path.resolve(__dirname, '../../prettier-hook/bin/prettier-hook.js'),
-  // debug
-  path.resolve(__dirname, '../../node_modules/prettier-hook/bin/prettier-hook.js'),
-].find(fs.existsSync);
+const binpath = 'prettier-hook/bin/prettier-hook.js';
+const hookpath = ['../..', '../../node_modules']
+  .map((prefix) => path.join(__dirname, prefix, binpath))
+  .find(fs.existsSync);
 
 const command = `${hookpath} --require ${indexpath} ${args._}`;
 const res = execSync(command).toString();

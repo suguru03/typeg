@@ -34,7 +34,7 @@ function resolveTimes(parent: any[], index: number, args: any[] = []): void {
   // validate type params
   const tree = parent[index];
   cloneIndex++;
-  const list = times(length, t => new Node(tree, t + 1, target, opts).resolve().getNode());
+  const list = times(length, (t) => new Node(tree, t + 1, target, opts).resolve().getNode());
   parent.splice(index, 1, ...list);
 }
 
@@ -92,9 +92,7 @@ class Node {
   }
 
   resolve(): this {
-    return this.resolveTypeParams()
-      .resolveArgs()
-      .resolveReturnType();
+    return this.resolveTypeParams().resolveArgs().resolveReturnType();
   }
 
   private resolveTypeParams(): this {
@@ -103,7 +101,7 @@ class Node {
     if (!typeParameters) {
       throw new TimesError('Type definition not found');
     }
-    const targetIndex = typeParameters.params.findIndex(p => p.name === target);
+    const targetIndex = typeParameters.params.findIndex((p) => p.name.name === target);
     const targetType = typeParameters.params[targetIndex];
     if (!targetType) {
       throw new TimesError(`${target} not found`);
@@ -113,7 +111,7 @@ class Node {
     delete node.decorators;
 
     // create types
-    const types = times(size, n => {
+    const types = times(size, (n) => {
       const type = dcp.clone(typeKey, targetType);
       type.name = `${target}${++n}`;
       return type;
@@ -198,7 +196,7 @@ class Node {
       return this;
     }
     const { target, size } = this;
-    const types = times(size, n => ({
+    const types = times(size, (n) => ({
       type: 'TSTypeReference',
       typeName: {
         type: 'Identifier',
@@ -225,7 +223,7 @@ class Node {
       .set('TSUnionType', (parent, parentKey, ast) => {
         const tree = parent[parentKey];
         ast.resolveAst(tree, 'types');
-        const index = tree.types.findIndex(t => t.typeName && t.typeName.name === target);
+        const index = tree.types.findIndex((t) => t.typeName && t.typeName.name === target);
         if (index >= 0) {
           tree.types.splice(index, 1, ...types);
         }
@@ -239,7 +237,7 @@ class Node {
     const { target, size } = this;
     const param = params[index];
     const argKey = this.getKey(`multi:${param.name}`);
-    const newArgs = times(size, n => {
+    const newArgs = times(size, (n) => {
       const arg = dcp.clone(argKey, param);
       arg.name += ++n;
       new Ast()
@@ -263,7 +261,7 @@ class Node {
     const { target, size } = this;
     const param = params[index];
     const cloneKey = this.getKey(`ArrayMulti:${param.range}`);
-    const newArgs = times(size, n => {
+    const newArgs = times(size, (n) => {
       n++;
       const arg = dcp.clone(cloneKey, param);
       new Ast()
