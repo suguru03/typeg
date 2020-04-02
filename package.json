@@ -16,13 +16,13 @@
   ],
   "devDependencies": {
     "@types/node": "^11.11.5",
-    "husky": "^1.1.4",
-    "lint-staged": "^8.0.4",
-    "prettier": "^1.15.2",
+    "husky": "^4.2.3",
+    "lint-staged": "^10.1.1",
+    "prettier": "^2.0.2",
     "ts-node": "^7.0.1",
     "ts-publisher": "^0.1.1",
     "tslint": "^5.11.0",
-    "typescript": "~3.7.5"
+    "typescript": "^3.8.3"
   },
   "dependencies": {
     "dcp": "^0.2.0",
@@ -39,8 +39,7 @@
   },
   "lint-staged": {
     "*.{js,ts}": [
-      "prettier --write",
-      "git add"
+      "prettier --write"
     ]
   },
   "prettier": {
