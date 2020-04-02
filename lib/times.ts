@@ -1,8 +1,7 @@
-import * as dcp from 'dcp';
-import * as ts from 'typescript';
+import dcp from 'dcp';
+import { Ast } from 'prettier-hook';
 
-import { times, get, set } from './util';
-import { Ast } from './';
+import { times, get } from './util';
 
 export default resolveTimes;
 
@@ -51,6 +50,7 @@ function getArguments(args: any[] = []) {
         } else {
           origin = value;
         }
+        return false;
       })
       .set('ObjectExpression', (node, key, ast) => {
         const cur = current;
@@ -61,6 +61,7 @@ function getArguments(args: any[] = []) {
         }
         ast.resolveAst(node[key], 'properties');
         current = cur;
+        return false;
       })
       .resolveAst(args, i);
     return origin;
@@ -210,7 +211,7 @@ class Node {
         ast.resolveAst(tree, 'typeParameters');
         ast.resolveAst(tree, 'typeName');
         if (tree.typeName.name !== target) {
-          return;
+          return false;
         }
         parent[parentKey] = {
           type: 'TSTypeAnnotation',
@@ -219,6 +220,7 @@ class Node {
             types,
           },
         };
+        return true;
       })
       .set('TSUnionType', (parent, parentKey, ast) => {
         const tree = parent[parentKey];
@@ -227,6 +229,7 @@ class Node {
         if (index >= 0) {
           tree.types.splice(index, 1, ...types);
         }
+        return false;
       })
       .resolveAst(node, key);
     return this;
@@ -247,6 +250,7 @@ class Node {
           if (get(tree, ['typeName', 'name']) === target) {
             tree.typeName.name += n;
           }
+          return false;
         })
         .resolveAst(arg);
       return arg;
@@ -270,6 +274,7 @@ class Node {
           if (get(tree, ['typeName', 'name']) === target) {
             tree.typeName.name += n;
           }
+          return false;
         })
         .resolveAst(arg);
       return arg;

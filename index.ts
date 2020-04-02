@@ -1,8 +1,8 @@
-import { addHook } from 'prettier-hook/hooks/parser-typescript';
+import { hooks, Ast } from 'prettier-hook';
 
-import { Ast, decoratorMap } from './lib';
+import { decoratorMap } from './lib';
 
-addHook(parse);
+hooks.typescript.addHook(parse);
 
 function parse(ast) {
   new Ast().set('MethodDefinition', resolveDecorators).resolveAst(ast);
@@ -12,7 +12,7 @@ function parse(ast) {
 function resolveDecorators(parent, key) {
   const tree = parent[key];
   if (!tree.decorators) {
-    return;
+    return false;
   }
   for (const { expression } of tree.decorators) {
     const func = decoratorMap[expression.callee.name];
@@ -20,4 +20,5 @@ function resolveDecorators(parent, key) {
       func(parent, key, expression.arguments);
     }
   }
+  return false;
 }
