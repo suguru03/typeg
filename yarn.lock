@@ -1248,10 +1248,10 @@ ts-node@^8.8.1:
     source-map-support "^0.5.6"
     yn "3.1.1"
 
-ts-publisher@^0.3.3:
-  version "0.3.3"
-  resolved "https://registry.yarnpkg.com/ts-publisher/-/ts-publisher-0.3.3.tgz#2e5cc4417d77390c8cbc7a59dc6a7c4ae3eb27cc"
-  integrity sha512-7j+VH3M6AZkKa4xsXEp1BqKChVEvi1GfqSI/JbHaXRkQ+c0awKyr+pr6JIxf7ySbWpeDmVL6pfjfwSocVRjBYA==
+ts-publisher@^0.3.4:
+  version "0.3.4"
+  resolved "https://registry.yarnpkg.com/ts-publisher/-/ts-publisher-0.3.4.tgz#f8acbfa474fc565188ba32ebb6f581a8ffbdbe4d"
+  integrity sha512-sXHE7d84F97I7oZoGDAyopl2etVOZT0bC5mXhn8zP1PynOYyaLrLnaVsbGAvC+fPq4RuzNYBacrL3ge0FoDzvQ==
   dependencies:
     commander "^4.0.1"
     inquirer "^7.0.0"
