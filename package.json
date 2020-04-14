@@ -1,6 +1,6 @@
 {
   "name": "typeg",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "main": "index.js",
   "author": "Suguru Motegi <suguru.motegi@gmail.com>",
   "private": true,
