@@ -976,12 +976,12 @@ prelude-ls@~1.1.2:
   resolved "https://registry.yarnpkg.com/prelude-ls/-/prelude-ls-1.1.2.tgz#21932a549f5e52ffd9a827f570e04be62a97da54"
   integrity sha1-IZMqVJ9eUv/ZqCf1cOBL5iqX2lQ=
 
-prettier-hook@^0.4.6:
-  version "0.4.6"
-  resolved "https://registry.yarnpkg.com/prettier-hook/-/prettier-hook-0.4.6.tgz#08f0044b28d973f0d50d556cd44028de428ff59e"
-  integrity sha512-I1v+4Eb8qnzF63g4Gm7kbp2ZVepuP5rg4Mj8vOXt2oQoqHzTWZGbwM/xov236URNscV4/iBIepcqr6PfDS+gSg==
+prettier-hook@^0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/prettier-hook/-/prettier-hook-0.5.0.tgz#4b54c2f3d0660ae57166373379822f86707aeb9f"
+  integrity sha512-yo550QslbmEXDOF5X0/mVUYKiTK7Ac5pUF0YInhTDmJa4bsFdvYxJzAbyelCVoFHV4bGtU+6LNWUxPb73DuH1g==
   dependencies:
-    minimist "^1.2.0"
+    minimist "^1.2.5"
     vm-agent "^0.6.0"
 
 prettier@^2.0.2:
